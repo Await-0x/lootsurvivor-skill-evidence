@@ -52,20 +52,24 @@ Join key: `TokenScoreUpdate.id = OwnersUpdate.token_id = TokenMetadataUpdate.id`
 
 ## Results
 
-### Claim 1 — Experienced players outperform new players (`queries/01_experienced_vs_new.sql`)
+### Claim 1 — Median score by player experience (`queries/01_experienced_vs_new.sql`)
 
-Median score rises ~3× from one-time players to veterans:
+Each game is grouped by the player's experience **at the time it was played** (where the game
+falls in that player's own sequence), then we take the median per tier. Median score rises
+~3× and is monotonic:
 
-| Experience (lifetime games) | Players' games | Median score |
+| Experience (player's Nth game) | Games | Median score |
 |---|---|---|
-| 1 game | 156 | 52 |
-| 2–5 | 753 | 90 |
-| 6–20 | 10,979 | 41 |
-| 21–50 | 8,374 | 134 |
-| 51+ | 211,455 | **165** |
+| 1st game | 2,640 | 58 |
+| 2nd–5th | 9,485 | 57 |
+| 6th–20th | 14,687 | 123 |
+| 21st–50th | 18,784 | 145 |
+| 51st+ | 186,121 | **168** |
 
-(The 6–20 dip is a pooling artifact of lifetime bucketing — Query 2a, which scores games by
-experience *at the time they were played*, removes it and is the cleaner cut.)
+Note: an earlier version grouped by each player's *lifetime* game total and pooled all their
+games. That axis is confounded (players who keep dying cheaply accumulate many low-scoring
+games and pile into the mid-range), producing a spurious dip at 6–20. Grouping by
+experience-at-time-of-play, as above, removes the artifact and agrees with Claim 2a.
 
 ### Claim 2a — A player's score rises with experience (`queries/02a_improvement_by_nth_game.sql`)
 

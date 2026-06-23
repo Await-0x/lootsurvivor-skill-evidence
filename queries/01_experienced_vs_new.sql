@@ -1,10 +1,12 @@
--- Loot Survivor — Claim 1: Experienced players outperform new players (median score by experience)
+-- Loot Survivor — Claim 1: Median score by player experience
 -- Source: https://api.cartridge.gg/x/pg-mainnet-10/torii/sql  (SQLite)
--- Filters: official LS minter (registry id 0x6 = 0x00a67ef2...29ec42), settings_id=1, score 1..3000.
--- Headline metric is MEDIAN (scores are heavy-tailed; the raw mean is outlier-dominated).
+-- Each game is grouped by the player's experience AT THE TIME it was played
+-- (i.e. where the game falls in that player's own chronological sequence), then we
+-- take the median score per experience tier. This measures experience-at-time-of-play
+-- and is monotonic; it avoids the confound of bucketing by a player's lifetime game
+-- total (which mixes in selection effects and produces a spurious mid-range dip).
 WITH g AS (
-  SELECT o.owner AS player,
-         ( (instr('0123456789abcdef',substr(s.score,7,1))-1)*17592186044416
+  SELECT ( (instr('0123456789abcdef',substr(s.score,7,1))-1)*17592186044416
          + (instr('0123456789abcdef',substr(s.score,8,1))-1)*1099511627776
          + (instr('0123456789abcdef',substr(s.score,9,1))-1)*68719476736
          + (instr('0123456789abcdef',substr(s.score,10,1))-1)*4294967296
@@ -15,26 +17,28 @@ WITH g AS (
          + (instr('0123456789abcdef',substr(s.score,15,1))-1)*4096
          + (instr('0123456789abcdef',substr(s.score,16,1))-1)*256
          + (instr('0123456789abcdef',substr(s.score,17,1))-1)*16
-         + (instr('0123456789abcdef',substr(s.score,18,1))-1) ) AS sc
+         + (instr('0123456789abcdef',substr(s.score,18,1))-1) ) AS sc,
+         ROW_NUMBER() OVER (PARTITION BY o.owner ORDER BY s.internal_executed_at) AS game_no
   FROM "relayer_0_0_1-TokenMetadataUpdate" m
   JOIN "relayer_0_0_1-TokenScoreUpdate"   s ON s.id = m.id
   JOIN "relayer_0_0_1-OwnersUpdate"       o ON o.token_id = m.id
   WHERE m.settings_id = 1 AND m.minted_by = '0x0000000000000006'
 ),
-gp AS (SELECT player, sc, COUNT(*) OVER (PARTITION BY player) AS games
-       FROM g WHERE sc BETWEEN 1 AND 3000),
-buck AS (
-  SELECT CASE WHEN games=1 THEN '1' WHEN games<=5 THEN '2-5'
-              WHEN games<=20 THEN '6-20' WHEN games<=50 THEN '21-50'
-              ELSE '51+' END AS bucket, sc FROM gp
+b AS (
+  SELECT CASE WHEN game_no=1 THEN '1st game'
+              WHEN game_no<=5 THEN '2nd-5th game'
+              WHEN game_no<=20 THEN '6th-20th game'
+              WHEN game_no<=50 THEN '21st-50th game'
+              ELSE '51st+ game' END AS experience,
+         CASE WHEN game_no=1 THEN 1 WHEN game_no<=5 THEN 2 WHEN game_no<=20 THEN 3
+              WHEN game_no<=50 THEN 4 ELSE 5 END AS ord,
+         sc
+  FROM g WHERE sc BETWEEN 1 AND 3000
 ),
-r AS (SELECT bucket, sc,
-             ROW_NUMBER() OVER (PARTITION BY bucket ORDER BY sc) rn,
-             COUNT(*)     OVER (PARTITION BY bucket) c FROM buck)
-SELECT bucket,
+r AS (SELECT experience, ord, sc,
+             ROW_NUMBER() OVER (PARTITION BY experience ORDER BY sc) rn,
+             COUNT(*)     OVER (PARTITION BY experience) c FROM b)
+SELECT experience,
        c AS games,
-       ROUND(AVG(CASE WHEN rn IN ((c+1)/2,(c+2)/2) THEN sc END),1) AS median_score,
-       ROUND(AVG(sc),1) AS mean_score   -- shown for completeness; median is the headline
-FROM r GROUP BY bucket
-ORDER BY MIN(CASE bucket WHEN '1' THEN 1 WHEN '2-5' THEN 2 WHEN '6-20' THEN 3
-                         WHEN '21-50' THEN 4 ELSE 5 END);
+       ROUND(AVG(CASE WHEN rn IN ((c+1)/2,(c+2)/2) THEN sc END),1) AS median_score
+FROM r GROUP BY experience ORDER BY MIN(ord);
