@@ -71,33 +71,31 @@ games. That axis is confounded (players who keep dying cheaply accumulate many l
 games and pile into the mid-range), producing a spurious dip at 6–20. Grouping by
 experience-at-time-of-play, as above, removes the artifact and agrees with Claim 2a.
 
-### Claim 2a — A player's score rises with experience (`queries/02a_improvement_by_nth_game.sql`)
+### Claim 2 — Skill persists: skilled players consistently outscore weaker players over many games (`queries/05_skill_persistence.sql`)
 
-Median score by the player's Nth game (their own career sequence):
+This is the strongest skill-vs-chance exhibit. Players with ≥20 games are split into four tiers
+by their median score over their **first 10 games**, then each tier's median is tracked across
+later game windows:
 
-| Player's Nth game | Players reaching it | Median score |
-|---|---|---|
-| 1 | 2,640 | 58 |
-| 5 | 2,278 | 57 |
-| 10 | 947 | 134 |
-| 20 | 763 | 144 |
-| 50 | 516 | 145 |
-| 100 | 336 | **166** |
+| Early-skill tier | games 11–20 | 21–40 | 41–70 | 71–120 |
+|---|---|---|---|---|
+| Tier 1 (lowest) | 102 | 110 | 122 | 128 |
+| Tier 2 | 133 | 140 | 142 | 150 |
+| Tier 3 | 147 | 150 | 158 | 159 |
+| Tier 4 (highest) | 173 | 176 | 174 | **181** |
 
-A player's typical score roughly **triples** between their first handful of games and their
-100th — a textbook learning curve.
+The tiers stay ordered and separated across 100+ games — **they never cross**. The correlation
+between a player's first-10-game median and their later-game median is **r = 0.55** (n = 763); a
+chance-driven game would give r ≈ 0 and the four lines would converge.
 
-### Claim 2b — The *same* player improves (`queries/02b_within_player_improvement.sql`)
-
-For each player with ≥10 games, comparing the median of their first half of games vs their
-second half (within-subject, so it is immune to the "only good players keep playing"
-objection):
-
-- Players analysed: **949**
-- Players whose later-half median exceeded their earlier-half median: **557 (58.7%)**
-- Average first-half median **145.9** → average second-half median **153.0**
-
-A clear majority of individuals improve against their own earlier baseline.
+**Note on selection vs. learning.** The raw "median score by Nth game" curve (games 1→100 rising
+58→166, `queries/02a`) is *mostly a selection/survivorship effect*, not individuals improving:
+players who score well keep playing while weak players quit, so the surviving population at high
+game numbers is increasingly skilled (players who go on to play 50+ games already scored ~125 on
+their first three games, vs ~52 for one-and-done players). Genuine within-player improvement is
+real but modest (~62–65% of high-volume players improve from their first 50 games to their later
+games, by ~6–10%; `queries/02b`). We therefore lead with *persistence* (above), which is robust
+to selection, rather than with the raw learning curve.
 
 ### Claim 3 — Prior skill transfers: OG veterans outscore new players from game 1 (`queries/03_cohort_skill_transfer.sql`)
 
