@@ -30,13 +30,13 @@ pre{background:#0f1626;color:#cdd6e6;padding:14px;border-radius:9px;overflow:aut
 
 <div class="card prov">
 <h2>Data source and how to reproduce it</h2>
-<p>Every Loot Survivor game is a non-fungible token (NFT) minted on <b>Starknet mainnet</b>, and the final score of each game is written to the blockchain by the game's smart contract. The figures below are read directly from that on-chain record — they are not generated, modelled, or self-reported.</p>
+<p>Every Loot Survivor game is a non-fungible token (NFT) minted on <b>Starknet mainnet</b>, and the final score of each game is written to the blockchain by the game's smart contract. The figures below are read directly from that on-chain record.</p>
 <ul>
 <li><b>Game contract (scores &amp; ownership):</b> <code>0x036017e69d21d6d8c13e266eabb73ef1f1d02722d86bdcabe5f168f8e549d3cd</code> — <a href="https://voyager.online/contract/0x036017e69d21d6d8c13e266eabb73ef1f1d02722d86bdcabe5f168f8e549d3cd" target="_blank">view on Voyager ↗</a></li>
 <li><b>Public data endpoint:</b> Cartridge's open Torii indexer — <code>https://api.cartridge.gg/x/pg-mainnet-10/torii/sql</code>. The &ldquo;re-run&rdquo; link under each chart returns the exact figures shown.</li>
 <li><b>Previous-title control:</b> the original Loot Survivor NFT <code>0x018108b32cea514a78ef1b0e4a0753e855cdf620bc0565202c02456f618c4dc4</code> (<a href="https://voyager.online/contract/0x018108b32cea514a78ef1b0e4a0753e855cdf620bc0565202c02456f618c4dc4" target="_blank">Voyager ↗</a>), read from Starknet mint events, distinguishes players new to the franchise from returning ones.</li>
 </ul>
-<p style="margin-bottom:0">Method applied to every chart: official game minter only, standard ruleset (<span class="mono">settings_id = 1</span>), and exclusion of out-of-range/corrupt scores. Figures are <b>medians</b> (the middle / typical value), which are not skewed by extreme outliers.</p>
+<p style="margin-bottom:0">Method applied to every chart: official game minter only, standard ruleset (<span class="mono">settings_id = 1</span>). Figures are <b>medians</b> (the middle / typical value), which are not skewed by extreme outliers.</p>
 </div>
 
 <div class="card">
