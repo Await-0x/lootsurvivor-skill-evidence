@@ -89,7 +89,7 @@ ORDER BY MIN(CASE bucket WHEN '1' THEN 1 WHEN '2-5' THEN 2 WHEN '6-20' THEN 3
 
 <div class="card">
 <h2>2 · Median score by a player's Nth game</h2>
-<p class="take">Each player's games are numbered in chronological order (their 1st, 2nd, … Nth game); the line is the median across all players at each position. The dashed line repeats the measure after excluding players who had previously played the original Loot Survivor.</p>
+<p class="take">Each player's games are numbered in chronological order (their 1st, 2nd, … Nth game); the line is the median score across all players at each position.</p>
 <div class="chart"><canvas id="c2"></canvas></div>
 <div class="kpis">
 <div class="kpi"><b>58.7%</b><span>of players with 10 or more games had a higher median score across the second half of their games than the first (each player compared only to themselves; n=949)</span></div>
@@ -155,6 +155,6 @@ const D={"d01": [{"bucket": "1", "games": 156, "mean_score": 99.9, "median_score
 const f={legend:{labels:{font:{size:13}}}};
 const gridc='#eef1f6';
 new Chart(c1,{type:'bar',data:{labels:D.d01.map(r=>r.bucket+' games'),datasets:[{label:'Median score',data:D.d01.map(r=>r.median_score),backgroundColor:'#2f5fe0',borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:gridc},title:{display:true,text:'Median score'}},x:{grid:{display:false},title:{display:true,text:'Games played by the player'}}}}});
-new Chart(c2,{type:'line',data:{labels:D.d02a.map(r=>r.game_no),datasets:[{label:"All players",data:D.d02a.map(r=>r.median_score),borderColor:'#2f5fe0',backgroundColor:'#2f5fe0',tension:.25,pointRadius:0,borderWidth:2.5},{label:"Players new to the franchise only (returning players excluded)",data:D.d04.map(r=>r.median_score),borderColor:'#1f9d6b',backgroundColor:'#1f9d6b',borderDash:[5,4],tension:.25,pointRadius:0,borderWidth:2}]},options:{interaction:{mode:'index',intersect:false},plugins:f,scales:{y:{beginAtZero:true,grid:{color:gridc},title:{display:true,text:'Median score'}},x:{grid:{display:false},title:{display:true,text:"Player's Nth game"}}}}});
+new Chart(c2,{type:'line',data:{labels:D.d02a.map(r=>r.game_no),datasets:[{label:"Median score",data:D.d02a.map(r=>r.median_score),borderColor:'#2f5fe0',backgroundColor:'#2f5fe0',tension:.25,pointRadius:0,borderWidth:2.5}]},options:{interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>"Game #"+i[0].label}}},scales:{y:{beginAtZero:true,grid:{color:gridc},title:{display:true,text:'Median score'}},x:{grid:{display:false},title:{display:true,text:"Player's Nth game"}}}}});
 new Chart(c3,{type:'bar',data:{labels:['First 3 games'],datasets:[{label:'New to the franchise',data:[D.new3],backgroundColor:'#1f9d6b',borderRadius:6},{label:'Played the previous title',data:[D.vet3],backgroundColor:'#d9772b',borderRadius:6}]},options:{indexAxis:'y',plugins:f,scales:{x:{beginAtZero:true,grid:{color:gridc},title:{display:true,text:'Median score over first 3 games'}},y:{grid:{display:false}}}}});
 </script></body></html>
